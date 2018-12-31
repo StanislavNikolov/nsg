@@ -65,13 +65,15 @@ class UICommand {
 
 void gotoxy(int x, int y) {
 #ifdef __linux__
-	std::cout << "\033[" << y << ";" << x << "H" << std::flush;
+	std::cout << "\033[" << y + 1 << ";" << x + 1 << "H" << std::flush;
 #elif _WIN32
 	COORD pos = {x, y};
 	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(output, pos);
 #endif
 }
+
+std::string lastScreen, lastColorBuff;
 
 void flushToScreen(const std::string &screen, const std::string &colorBuff, int rows, int columns) {
 	//std::cout << int(screen[0]) << std::flush; return;
@@ -80,17 +82,19 @@ void flushToScreen(const std::string &screen, const std::string &colorBuff, int 
 	int curCol = 0;
 
 	if(lastScreen.size() != screen.size()) lastScreen = std::string(rows * columns, '\0');
+	if(lastColorBuff.size() != colorBuff.size()) lastScreen = std::string(rows * columns, '\0');
 
 	for(int i = 0;i < screen.size();i ++) {
-			if(lastScreen[i] != screen[i]/* or colorBuff[i] != currColor*/) {
+			if(lastScreen[i] != screen[i] or colorBuff[i] != currColor or colorBuff[i] != lastColorBuff[i]) {
+				//                           |--------TODO-----------|
 				gotoxy(curCol, curRow);
-				/*if(colorBuff[i] != currColor) {
+				//if(colorBuff[i] != currColor) {
 					currColor = colorBuff[i];
 					if(colorBuff[i] == 's') changeColor(GREEN, BLACK);//STATUS
 					if(colorBuff[i] == 'd') changeColor(WHITE, BLACK);//DEF
 					if(colorBuff[i] == 'c') changeColor(BLACK, WHITE);//CURSOR
 					if(colorBuff[i] == 'n') changeColor(BLACK, BLACK);//NOTHING
-				}*/
+				//}
 				std::cout << screen[i];
 #ifdef _WIN32
 				std::cout << std::flush;
@@ -109,7 +113,6 @@ void flushToScreen(const std::string &screen, const std::string &colorBuff, int 
 
 void drawScreen(const Tab &currTab) {
 	int columns, rows;
-
 #ifdef __linux__
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -190,6 +193,7 @@ void drawScreen(const Tab &currTab) {
 
 	flushToScreen(screen, colorBuff, rows, columns);
 	lastScreen = screen;
+	lastColorBuff = colorBuff;
 }
 
 #endif

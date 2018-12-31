@@ -23,19 +23,22 @@
 
 Keyboard kb;
 
-int main() {
-	fpow[0] = 1;
-	for(int i = 1;i < 130;i ++) fpow[i] = (fpow[i-1] * 37) % mod;
-	//changeColor();
+void clearScreen() {
 #ifdef __linux__
 	std::system("clear");
 #elif _WIN32
 	std::system("cls");
-#endif
+#endif	
+}
+
+int main() {
+	fpow[0] = 1;
+	for(int i = 1;i < 130;i ++) fpow[i] = (fpow[i-1] * 37) % mod;
+	//changeColor();
 	allTabs.push_back(Tab("kur.cpp"));
 	allTabs.push_back(Tab("asd.txt"));
 	allTabs.push_back(Tab("mnogodulgoimeasdasdasdasd.txt"));
-
+	clearScreen();
 	while(true) {
 		drawScreen(allTabs[0]);
 		kb.readKeyboard();
@@ -45,10 +48,6 @@ int main() {
 		}
 		*/
 		int currCommand = translateKeyToCommand(kb);
-		debug::log(std::to_string(kb.isKeyPressed(17)));
-		debug::log(std::to_string(kb.isKeyPressed('q')));
-		debug::log(std::to_string(kb.isKeyPressed('a')));
-		debug::log("\n");
 		if(currCommand == 12) {
 			#ifdef __linux__
 			kb.disableRawMode();
