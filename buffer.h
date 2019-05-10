@@ -7,37 +7,6 @@
 std::vector<std::pair<int, int> > selections;
 //start, len
 
-long long fpow[140];
-
-const long long modAns = 1e9 + 7;
-const long long mod = 1000000000000037;
-std::vector<int> rabinKarp(const std::string &pat, const std::string &text)
-{
-	std::vector<int> indexes;
-	if(pat.size() > text.size())
-		return indexes;
-	long long hash = 0;
-	long long hashText = 0;
-	long long smallMod = 37;
-	long long power = fpow[pat.size() - 1];
-	for(int i = 0; i < pat.size(); i ++)
-	{
-		hash = (hash * smallMod + pat[i]) % mod;
-		hashText = (hashText * smallMod + text[i]) % mod;
-	}
-	for(int i = 0; i < text.size() - pat.size(); i ++)
-	{
-		if(hash == hashText)
-			indexes.push_back(i);
-		hashText = (smallMod * (hashText - text[i] * power) + text[pat.size() + i]) % mod;
-		if(hashText < 0)
-			hashText += mod;
-	}
-	if(hash == hashText)
-		indexes.push_back(text.size() - pat.size());
-	return indexes;
-}
-
 class Buffer {
 	std::string text;
 public:
