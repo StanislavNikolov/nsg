@@ -16,6 +16,7 @@
 #endif
 
 #include "debug.h"
+#include "stringmatching.h"
 #include "buffer.h"
 #include "common.h"
 #include "keyboard.h"
@@ -28,12 +29,10 @@ void clearScreen() {
 	std::system("clear");
 #elif _WIN32
 	std::system("cls");
-#endif	
+#endif
 }
 
 int main() {
-	fpow[0] = 1;
-	for(int i = 1;i < 130;i ++) fpow[i] = (fpow[i-1] * 37) % mod;
 	//changeColor();
 	allTabs.push_back(Tab("kur.cpp"));
 	allTabs.push_back(Tab("asd.txt"));
@@ -50,15 +49,25 @@ int main() {
 		int currCommand = translateKeyToCommand(kb);
 		if(currCommand == 12) {
 			#ifdef __linux__
-			kb.disableRawMode();
+                kb.disableRawMode();
 			#endif
 			return 0;
 		}
 		if(currCommand > 1000) {
-			allTabs[0].buff.writeOnCursor(std::string(1, (char)(currCommand - 1000)));
-			anythingNewToRedraw = true;
+		    if(currCommand == lastPress) {
+                ticks ++;
+		    } else {
+                ticks = 0;
+                lastPress = currCommand;
+		    }
+		    if(ticks == 0 || ticks >= 15) {
+                allTabs[0].buff.writeOnCursor(std::string(1, (char)(currCommand - 1000)));
+                anythingNewToRedraw = true;
+		    }
+		} else {
+            ticks = 0;
 		}
-		goodSleep(1000/30);
+		goodSleep(1000/40);
 	}
 }
 

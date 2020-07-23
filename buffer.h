@@ -53,7 +53,7 @@ void Buffer::deleteLine() {
 }
 
 void Buffer::findAndSelect(const std::string &str) const {
-	std::vector<int> curr = rabinKarp(str, text);
+	std::vector<int> curr = findText(str, text);
 	for(int i = 0; i < curr.size(); i ++)
 		selections.push_back({curr[i], str.size()});
 }

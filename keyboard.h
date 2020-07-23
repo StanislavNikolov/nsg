@@ -3,7 +3,6 @@
 
 class Keyboard {
 	bool keyArray[256];
-
 	public:
 	Keyboard();
 	void readKeyboard();
@@ -50,12 +49,11 @@ Keyboard::Keyboard() {
 #include <bitset>
 
 void Keyboard::readKeyboard() {
+	std::fill(keyArray, keyArray + 256, false);
 #ifdef __linux__
 
 #define CTRL_KEY(k)  (((k) & 0b01100000) == 0)
-
 	unsigned char c = '\0';
-	std::fill(keyArray, keyArray + 256, false);
 
 	while(read(STDIN_FILENO, &c, 1) == 1) {
 		if(c == '\0') break;
@@ -91,7 +89,12 @@ void Keyboard::readKeyboard() {
 	bool shift = (GetKeyState(16) >> 8) != 0;
 	keyArray[16] = true;
 	for(int i = 32;i <= 126;i ++) {
-		if((GetKeyState(i) >> 8) != 0) {
+	    if(GetKeyState(i)) {
+            std::string c = "";
+            c.push_back((char)i);
+            debug::log(c);
+	    }
+        if((GetKeyState(i) < 0)) {
 			if('0' <= i and i <= '9') {
 				if(shift) keyArray[i - '0' + '!'] = true;
 				else	  keyArray[i] = true;
@@ -144,9 +147,8 @@ void Keyboard::readKeyboard() {
 				if(shift) keyArray['<'] = true;
 				else	  keyArray['.'] = true;
 			}
-			}
-		}
-	}
+        }
+    }
 #endif
 }
 
@@ -155,6 +157,7 @@ bool Keyboard::isKeyPressed(int i) const {
 	return keyArray[i];
 }
 
+short lastPress(-1), ticks;
 int translateKeyToCommand(const Keyboard &kb){
 	bool ctrl = kb.isKeyPressed(17);//, alt = kb.isKeyPressed(18);
 	if(ctrl && kb.isKeyPressed('x')) return 1;  ///CUT
@@ -172,7 +175,7 @@ int translateKeyToCommand(const Keyboard &kb){
 	//if(ctrl && kb.isKeyPressed('C')) return 13; ///COMMENT
 	//if(ctrl && kb.isKeyPressed('X')) return 14; ///UNCOMMENT
 
-	for(int i = 32;i <= 127;i ++) {
+	for(int i = 32; i <= 127; i ++) {
 		if(kb.isKeyPressed(i)) return 1000 + i;
 	}
 
